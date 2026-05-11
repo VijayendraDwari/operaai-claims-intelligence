@@ -1,7 +1,7 @@
 # OperaAI Claims Intelligence
 ## Agentic Workflow Demo for Regulated Insurance Operations
 
-> **By Vijayendra Dwari / ProAct AI**
+> **By Vijayendra Dwari**
 > 
 > This repository contains the reference implementation of an agentic workflow system designed specifically for the complex, highly regulated environment of Singapore's health insurance industry.
 
@@ -11,7 +11,7 @@
 
 Most enterprise AI deployments fail in insurance claims processing because they treat AI as a "tool" (like a chatbot) rather than an "agent" that owns a workflow. Insurance claims are not simple Q&A tasks; they are complex state machines governed by strict regulatory frameworks.
 
-In Singapore, a health insurance claim must navigate:
+For example In Singapore, a health insurance claim must navigate:
 - **MAS Notice 120**: Strict SLAs and audit trail requirements for every decision.
 - **MOH Schedule of Fees**: Complex proration rules when hospital charges exceed benchmarks.
 - **CPF Medisave & MediShield Life**: Integration with national health financing schemes.
@@ -98,9 +98,9 @@ The application will be available at `http://localhost:5173`.
 
 ## About the Author
 
-**Vijayendra Dwari** is the founder of ProAct AI and an architect of enterprise agentic systems. He specializes in building AI systems for highly regulated industries (insurance, healthcare, financial services) that require strict compliance, auditability, and human-in-the-loop governance.
+**Vijayendra Dwari** is the architect of enterprise agentic systems. He specializes in building AI systems for highly regulated industries (insurance, healthcare, financial services) that require strict compliance, auditability, and human-in-the-loop governance.
 
 [LinkedIn](https://linkedin.com/in/vijayendradwari) | [GitHub](https://github.com/VijayendraDwari)
 
 ---
-*© 2026 ProAct AI. Open-sourced under the MIT License.*
+*© 2026 Vijayendra Dwari. Open-sourced under the MIT License.*
