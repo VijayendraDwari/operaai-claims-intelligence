@@ -57,9 +57,9 @@ This is a lightweight, demo-optimized stack designed to run entirely in memory f
 - **Backend**: Express 4 + tRPC 11
 - **Database**: SQLite (via `sql.js` running in-memory)
 - **Language**: TypeScript
-- **UI Pattern**: Toscana Dark Navy Sidebar (optimized for enterprise data density)
+- **UI Pattern**:Dark Navy Sidebar (optimized for enterprise data density)
 
-*Note: The use of in-memory SQLite allows the demo to be instantly reset to its original state via the "Reset Demo" button, making it perfect for stakeholder presentations.*
+*Note: The use of in-memory SQLite allows the demo to be instantly reset to its original state*
 
 ---
 
