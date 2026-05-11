@@ -1,7 +1,7 @@
 # Case Study: Architecting Agentic Workflows for Regulated Insurance
 
 **Project**: OperaAI Claims Intelligence  
-**Architect**: Vijayendra Dwari, ProAct AI  
+**Architect**: Vijayendra Dwari  
 **Domain**: Health Insurance (Singapore)  
 
 ---
