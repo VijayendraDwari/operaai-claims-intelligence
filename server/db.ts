@@ -221,6 +221,78 @@ function initSchema(database: Database) {
   `);
 }
 
+// ─── Pre-seeded audit trail entries ──────────────────────────────────────────
+// Each entry reflects the real journey a claim has taken through the pipeline.
+// Timestamps are offset to simulate realistic processing times.
+
+const SEED_AUDIT_LOGS: Array<{
+  claim_number: string;
+  action: string;
+  performer: string;
+  timestamp: string;
+  details: string;
+}> = [
+  // CLM-2026-001 — intake_triage (just arrived)
+  { claim_number: "CLM-2026-001", action: "CLAIM_SUBMITTED", performer: "Portal (Self-Service)", timestamp: "2026-03-22T09:15:00", details: "Claim submitted via OperaAI claimant portal. Automated intake checklist triggered." },
+  { claim_number: "CLM-2026-001", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-03-22T09:15:45", details: "Automated checklist: Hospital discharge summary ✓, Medical bills ✓, Policy document ✓. Singpass verification PENDING." },
+
+  // CLM-2026-002 — intake_triage (P1 critical, fast-tracked)
+  { claim_number: "CLM-2026-002", action: "CLAIM_SUBMITTED", performer: "Portal (Self-Service)", timestamp: "2026-03-10T11:30:00", details: "P1 Critical Illness claim submitted. Oncology case — fast-track protocol activated." },
+  { claim_number: "CLM-2026-002", action: "P1_ESCALATION", performer: "System (Priority Engine)", timestamp: "2026-03-10T11:30:10", details: "Claim auto-escalated to P1. Critical Illness (C50.9 Breast Cancer) threshold exceeded SGD 25,000. Senior adjudicator assignment required." },
+  { claim_number: "CLM-2026-002", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-03-10T11:31:00", details: "Automated checklist: Oncology specialist report MISSING. Admission records ✓, Policy ✓. Awaiting specialist documentation." },
+
+  // CLM-2026-003 — idv_eligibility (passed intake)
+  { claim_number: "CLM-2026-003", action: "CLAIM_SUBMITTED", performer: "Portal (Self-Service)", timestamp: "2026-02-01T08:45:00", details: "Disability income claim submitted. 12-month benefit period requested." },
+  { claim_number: "CLM-2026-003", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-02-01T08:45:30", details: "Automated checklist complete. All documents received. Singpass verified ✓." },
+  { claim_number: "CLM-2026-003", action: "STAGE_ADVANCE", performer: "Sarah Lim (Claims Officer)", timestamp: "2026-02-01T14:20:00", details: "Claim Lodgement complete. Advancing to Claim Assessment. All intake criteria satisfied." },
+  { claim_number: "CLM-2026-003", action: "IDV_INITIATED", performer: "System (IDV Engine)", timestamp: "2026-02-01T14:20:05", details: "Identity verification initiated. CPF Medisave balance query sent. MediShield Life eligibility check in progress." },
+  { claim_number: "CLM-2026-003", action: "CPF_QUERY", performer: "System (CPF Integration)", timestamp: "2026-02-01T14:21:00", details: "CPF Medisave balance confirmed: SGD 9,800. MediShield Life: Eligible. Employer income verification request sent to IRAS." },
+
+  // CLM-2026-004 — medical_assessment (passed intake + IDV)
+  { claim_number: "CLM-2026-004", action: "CLAIM_SUBMITTED", performer: "Portal (Self-Service)", timestamp: "2026-03-08T10:00:00", details: "High-value CABG claim submitted. Estimated SGD 87,500." },
+  { claim_number: "CLM-2026-004", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-03-08T10:00:45", details: "Automated checklist complete. Cardiology reports received. Singpass verified ✓." },
+  { claim_number: "CLM-2026-004", action: "STAGE_ADVANCE", performer: "Sarah Lim (Claims Officer)", timestamp: "2026-03-08T16:30:00", details: "Claim Lodgement complete. Advancing to Claim Assessment." },
+  { claim_number: "CLM-2026-004", action: "IDV_COMPLETE", performer: "System (IDV Engine)", timestamp: "2026-03-09T09:15:00", details: "Identity verification passed. CPF Medisave: SGD 55,200 ✓. MediShield Life: Eligible ✓. Policy active and in-force ✓." },
+  { claim_number: "CLM-2026-004", action: "STAGE_ADVANCE", performer: "David Tan (Senior Claims Officer)", timestamp: "2026-03-09T11:00:00", details: "Claim Assessment complete. Advancing to Medical & Requirements. High-value claim — cardiology specialist assessment required." },
+  { claim_number: "CLM-2026-004", action: "MOH_BENCHMARK_QUERY", performer: "System (MOH Benchmark Engine)", timestamp: "2026-03-09T11:00:30", details: "MOH benchmark query initiated for CABG procedure (ICD: I25.1). Benchmark rate: SGD 72,000. Proration calculation pending specialist sign-off." },
+
+  // CLM-2026-005 — adjudication (passed intake + IDV + medical)
+  { claim_number: "CLM-2026-005", action: "CLAIM_SUBMITTED", performer: "Portal (Self-Service)", timestamp: "2026-03-14T13:00:00", details: "Day surgery cataract claim submitted." },
+  { claim_number: "CLM-2026-005", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-03-14T13:00:30", details: "Automated checklist complete. Day surgery report received. Singpass verified ✓." },
+  { claim_number: "CLM-2026-005", action: "STAGE_ADVANCE", performer: "Sarah Lim (Claims Officer)", timestamp: "2026-03-14T15:00:00", details: "Claim Lodgement complete. Advancing to Claim Assessment." },
+  { claim_number: "CLM-2026-005", action: "IDV_COMPLETE", performer: "System (IDV Engine)", timestamp: "2026-03-14T15:30:00", details: "IDV passed. CPF Medisave: SGD 22,100 ✓. MediShield Life: Eligible ✓." },
+  { claim_number: "CLM-2026-005", action: "STAGE_ADVANCE", performer: "David Tan (Senior Claims Officer)", timestamp: "2026-03-14T16:00:00", details: "Claim Assessment complete. Advancing to Medical & Requirements." },
+  { claim_number: "CLM-2026-005", action: "MOH_BENCHMARK_APPLIED", performer: "System (MOH Benchmark Engine)", timestamp: "2026-03-14T16:05:00", details: "MOH benchmark applied: SGD 7,400 (vs claimed SGD 8,200). Proration: 90.2%. Approved amount: SGD 7,400." },
+  { claim_number: "CLM-2026-005", action: "STAGE_ADVANCE", performer: "Dr. Aisha Binte Malik (Medical Reviewer)", timestamp: "2026-03-15T09:00:00", details: "Medical assessment complete. MOH benchmark proration applied. Advancing to Claim Decisioning." },
+
+  // CLM-2026-006 — quality_check (passed all prior stages, adjudication approved)
+  { claim_number: "CLM-2026-006", action: "CLAIM_SUBMITTED", performer: "A&E Counter (Changi General Hospital)", timestamp: "2026-03-21T07:30:00", details: "A&E claim submitted via hospital counter. Radius fracture — emergency treatment." },
+  { claim_number: "CLM-2026-006", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-03-21T07:30:45", details: "Automated checklist complete. A&E report ✓, X-ray images ✓, Discharge summary ✓. Singpass verified ✓." },
+  { claim_number: "CLM-2026-006", action: "STAGE_ADVANCE", performer: "Sarah Lim (Claims Officer)", timestamp: "2026-03-21T09:00:00", details: "Claim Lodgement complete. Advancing to Claim Assessment." },
+  { claim_number: "CLM-2026-006", action: "IDV_COMPLETE", performer: "System (IDV Engine)", timestamp: "2026-03-21T09:15:00", details: "IDV passed. CPF Medisave: SGD 31,500 ✓. MediShield Life: Eligible ✓." },
+  { claim_number: "CLM-2026-006", action: "STAGE_ADVANCE", performer: "David Tan (Senior Claims Officer)", timestamp: "2026-03-21T10:00:00", details: "Claim Assessment complete. Advancing to Medical & Requirements." },
+  { claim_number: "CLM-2026-006", action: "MOH_BENCHMARK_APPLIED", performer: "System (MOH Benchmark Engine)", timestamp: "2026-03-21T10:05:00", details: "MOH benchmark applied: SGD 3,200 (vs claimed SGD 3,400). Approved amount: SGD 3,200." },
+  { claim_number: "CLM-2026-006", action: "STAGE_ADVANCE", performer: "Dr. Aisha Binte Malik (Medical Reviewer)", timestamp: "2026-03-21T11:00:00", details: "Medical assessment complete. Advancing to Claim Decisioning." },
+  { claim_number: "CLM-2026-006", action: "AUTO_DECISION", performer: "System (Decisioning Engine)", timestamp: "2026-03-21T11:00:30", details: "Auto-decisioning rules applied: Policy active ✓, Within benefit limits ✓, MOH benchmark ✓, No exclusions ✓, No fraud flags ✓, Waiting period satisfied ✓. Decision: APPROVED." },
+  { claim_number: "CLM-2026-006", action: "PAYOUT_CALCULATED", performer: "System (Payout Engine)", timestamp: "2026-03-21T11:01:00", details: "Payout calculation: Approved SGD 3,200 — Co-insurance 10% (SGD 320) = Net payout SGD 2,880. Medisave routing: SGD 1,440. FAST transfer: SGD 1,440." },
+  { claim_number: "CLM-2026-006", action: "STAGE_ADVANCE", performer: "Michael Ng (Adjudicator)", timestamp: "2026-03-21T14:00:00", details: "Adjudication complete. Decision: Approved SGD 3,200. Payout SGD 2,880. Advancing to QC & Decision Comms." },
+
+  // CLM-2026-007 — payment_closure (all stages complete, QC passed)
+  { claim_number: "CLM-2026-007", action: "CLAIM_SUBMITTED", performer: "Portal (Self-Service)", timestamp: "2026-03-15T14:00:00", details: "Maternity complication claim submitted. Emergency caesarean section at KKH." },
+  { claim_number: "CLM-2026-007", action: "INTAKE_CHECKLIST", performer: "System (AI Intake Agent)", timestamp: "2026-03-15T14:00:45", details: "Automated checklist complete. Maternity records ✓, Surgical report ✓, Discharge summary ✓. Singpass verified ✓." },
+  { claim_number: "CLM-2026-007", action: "STAGE_ADVANCE", performer: "Sarah Lim (Claims Officer)", timestamp: "2026-03-15T16:00:00", details: "Claim Lodgement complete. Advancing to Claim Assessment." },
+  { claim_number: "CLM-2026-007", action: "IDV_COMPLETE", performer: "System (IDV Engine)", timestamp: "2026-03-15T16:30:00", details: "IDV passed. CPF Medisave: SGD 14,200 ✓. MediShield Life: Eligible ✓. Maternity benefit rider confirmed active." },
+  { claim_number: "CLM-2026-007", action: "STAGE_ADVANCE", performer: "David Tan (Senior Claims Officer)", timestamp: "2026-03-16T09:00:00", details: "Claim Assessment complete. Advancing to Medical & Requirements." },
+  { claim_number: "CLM-2026-007", action: "MOH_BENCHMARK_APPLIED", performer: "System (MOH Benchmark Engine)", timestamp: "2026-03-16T09:10:00", details: "MOH benchmark applied for emergency C-section: SGD 20,500 (vs claimed SGD 22,000). Approved amount: SGD 20,500." },
+  { claim_number: "CLM-2026-007", action: "STAGE_ADVANCE", performer: "Dr. Aisha Binte Malik (Medical Reviewer)", timestamp: "2026-03-16T11:00:00", details: "Medical assessment complete. MOH benchmark applied. Advancing to Claim Decisioning." },
+  { claim_number: "CLM-2026-007", action: "AUTO_DECISION", performer: "System (Decisioning Engine)", timestamp: "2026-03-16T11:00:30", details: "Auto-decisioning: Policy active ✓, Maternity rider confirmed ✓, MOH benchmark ✓, No exclusions ✓, No fraud flags ✓. Decision: APPROVED." },
+  { claim_number: "CLM-2026-007", action: "PAYOUT_CALCULATED", performer: "System (Payout Engine)", timestamp: "2026-03-16T11:01:00", details: "Payout: Approved SGD 20,500 — Co-insurance 10% (SGD 2,050) = Net SGD 18,450. Medisave routing: SGD 9,225. FAST transfer: SGD 9,225." },
+  { claim_number: "CLM-2026-007", action: "STAGE_ADVANCE", performer: "Michael Ng (Adjudicator)", timestamp: "2026-03-16T14:00:00", details: "Adjudication complete. Decision: Approved SGD 20,500. Net payout SGD 18,450. Advancing to QC & Decision Comms." },
+  { claim_number: "CLM-2026-007", action: "MAS_SLA_CHECK", performer: "System (Compliance Engine)", timestamp: "2026-03-17T09:00:00", details: "MAS Notice 120 SLA check: Claim lodged 2026-03-15, Decision made 2026-03-16. Processing time: 1 business day. SLA: COMPLIANT ✓ (within 10 business days)." },
+  { claim_number: "CLM-2026-007", action: "SETTLEMENT_LETTER_DRAFTED", performer: "System (Comms Engine)", timestamp: "2026-03-17T09:05:00", details: "Settlement letter drafted. PDPA-compliant notification prepared. Email to wongmeilin@email.sg queued." },
+  { claim_number: "CLM-2026-007", action: "STAGE_ADVANCE", performer: "Rachel Wong (QC Officer)", timestamp: "2026-03-17T11:00:00", details: "QC review passed. Decision communications approved. Advancing to Payment & Closure. FAST transfer and Medisave routing confirmed." },
+];
+
 function seedData(database: Database) {
   for (const claim of SEED_CLAIMS) {
     database.run(
@@ -237,6 +309,13 @@ function seedData(database: Database) {
         claim.treatment_type, claim.hospital_name, claim.admission_date,
         claim.discharge_date, claim.status, claim.notes,
       ]
+    );
+  }
+  // Seed audit trail — reflects each claim's journey through the pipeline
+  for (const log of SEED_AUDIT_LOGS) {
+    database.run(
+      `INSERT INTO audit_logs (claim_number, action, performer, timestamp, details) VALUES (?, ?, ?, ?, ?)`,
+      [log.claim_number, log.action, log.performer, log.timestamp, log.details]
     );
   }
 }
