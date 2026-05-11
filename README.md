@@ -1,11 +1,11 @@
-OperaAI Claims Intelligence
+# OperaAI Claims Intelligence
 Agentic Workflow Demo for Regulated Insurance Operations
 
     By Vijayendra Dwari
 
     This repository contains the reference implementation of an agentic workflow system designed specifically for the complex, highly regulated environment of Singapore's health insurance industry.
 
-The Problem: Why Standard AI Fails in Insurance
+# The Problem: Why Standard AI Fails in Insurance
 
 Most enterprise AI deployments fail in insurance claims processing because they treat AI as a "tool" (like a chatbot) rather than an "agent" that owns a workflow. Insurance claims are not simple Q&A tasks; they are complex state machines governed by strict regulatory frameworks.
 
@@ -27,7 +27,7 @@ Key Architectural Patterns Demonstrated:
     Immutable Audit Trails: Every action, whether taken by a human or suggested by the AI, is logged immutably to satisfy MAS Notice 120 compliance requirements.
     Deterministic + Probabilistic Hybrid: The system uses deterministic code for calculations (e.g., 10% co-insurance) and probabilistic AI for unstructured data extraction and clinical assessment.
 
-The Six-Stage Agentic Workflow
+# The Six-Stage Agentic Workflow
 
 The demo includes 7 seed claims, each placed in a different stage of the workflow to demonstrate specific agentic capabilities:
 Stage 	Agentic Capability Demonstrated 	Regulatory Context
