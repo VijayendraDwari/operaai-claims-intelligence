@@ -8,9 +8,9 @@
 
 ---
 
-## Before You Begin — Setup Checklist
+## Setup Checklist
 
-Complete these steps at least 5 minutes before the demo starts.
+Complete these steps before the demo starts.
 
 ```bash
 git clone https://github.com/VijayendraDwari/operaai-claims-intelligence.git
