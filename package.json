@@ -113,7 +113,13 @@
     },
     "overrides": {
       "tailwindcss>nanoid": "3.3.7"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild",
+      "better-sqlite3",
+      "sharp"
+    ]
   },
   "description": "OperaAI Claims Intelligence — A research-grade agentic workflow system for regulated insurance operations",
   "author": "Vijayendra Dwari",
