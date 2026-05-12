@@ -98,7 +98,7 @@ The application will be available at `http://localhost:5173`.
 
 ## About the Author
 
-**Vijayendra Dwari** is the architect of enterprise agentic systems. He specializes in building AI systems for highly regulated industries (insurance, healthcare, financial services) that require strict compliance, auditability, and human-in-the-loop governance.
+**Vijayendra Dwari** is an architect of enterprise agentic systems. He specializes in building AI systems for highly regulated industries (insurance, healthcare, financial services) that require strict compliance, auditability, and human-in-the-loop governance.
 
 [LinkedIn](https://linkedin.com/in/vijayendradwari) | [GitHub](https://github.com/VijayendraDwari)
 
