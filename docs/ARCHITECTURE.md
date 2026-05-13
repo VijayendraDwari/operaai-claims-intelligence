@@ -81,8 +81,8 @@ To upgrade:
 
 ## 5. Frontend Architecture
 
-### The Toscana Layout
-The UI implements the "Toscana" design pattern — a dark navy, collapsible sidebar layout optimized for enterprise applications with high data density.
+### The Layout
+The UI implements A collapsible sidebar layout optimized for enterprise applications with high data density.
 
 - **Background**: `#0f1623` (Reduces eye strain)
 - **Sidebar**: `linear-gradient(180deg, #0d1b2a 0%, #0a1628 100%)`
